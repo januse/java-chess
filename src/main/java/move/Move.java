@@ -5,6 +5,9 @@ import board.Position;
 import piece.Color;
 import piece.Piece;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
 
@@ -15,6 +18,7 @@ public class Move {
     private int rowDistance;
     private int columnDistance;
     private Piece movingPiece;
+    private List<PieceManipulation> piecesManipulatedInMove = new ArrayList<PieceManipulation>();
 
     public Move(Position startPosition, Position endPosition, Board board) {
         this.startPosition = startPosition;
@@ -34,8 +38,52 @@ public class Move {
     }
 
     public void makeMove() {
-        board.clearSquare(startPosition);
-        board.putPieceAtPosition(movingPiece, endPosition);
+        populateManipulatedPieces();
+        manipulatePieces();
+    }
+
+    private void populateManipulatedPieces() {
+        piecesManipulatedInMove.add(new PieceManipulation(startPosition, endPosition, movingPiece));
+        if (board.getPieceAtPosition(endPosition) != null) {
+            piecesManipulatedInMove.add(new PieceManipulation(endPosition, null, board.getPieceAtPosition(endPosition)));
+        }
+    }
+
+    private void manipulatePieces() {
+        // take off pieces first
+        for (PieceManipulation manipulation : piecesManipulatedInMove) {
+            if (manipulation.endPosition == null) {
+                board.clearSquare(manipulation.endPosition);
+            }
+        }
+
+        // if both pieces stay on board, order does not matter
+        for (PieceManipulation manipulation : piecesManipulatedInMove) {
+            board.clearSquare(manipulation.startPosition);
+            board.putPieceAtPosition(manipulation.piece, manipulation.endPosition);
+        }
+
+
+        // put new pieces on last
+        for (PieceManipulation manipulation : piecesManipulatedInMove) {
+            if (manipulation.startPosition == null) {
+                board.putPieceAtPosition(manipulation.piece, manipulation.endPosition);
+            }
+        }
+    }
+
+    public void makeInvertedMove() {
+        invertManipulations();
+        manipulatePieces();
+        invertManipulations();
+    }
+
+    private void invertManipulations() {
+        for (PieceManipulation manipulation : piecesManipulatedInMove) {
+            Position temp = manipulation.startPosition;
+            manipulation.startPosition = endPosition;
+            manipulation.endPosition = temp;
+        }
     }
 
     public boolean isLegal() {

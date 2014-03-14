@@ -11,7 +11,10 @@ import java.util.List;
 public class Board {
     public final int BOARD_SIZE = 8;
     private Piece[][] squares = new Piece[BOARD_SIZE][BOARD_SIZE];
+    private List<Move> moves = new ArrayList<Move>();
 
+
+    // still broken right now
     public boolean checkForCheckMate() {
         for (Position position: getAllPositionsOnBoard()) {
 
@@ -23,6 +26,17 @@ public class Board {
 
             }
 
+        }
+        return false;
+    }
+
+    public boolean checkForCheck() {
+        for (Position position : getAllPositionsOnBoard()) {
+            if (getPieceAtPosition(position) != null && getPieceAtPosition(position).type == PieceType.KING) {
+                if (isUnderAttack(position)) {
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -72,9 +86,16 @@ public class Board {
         Move move = new Move(startPosition, endPosition, this);
         if (move.isLegal()) {
             move.makeMove();
+            moves.add(move);
             return true;
         }
         return false;
+    }
+
+    public void undoMove() {
+        Move move = moves.get(moves.size() - 1);
+        moves.remove(move);
+        move.makeInvertedMove();
     }
 
     public Piece clearSquare(Position position) {
