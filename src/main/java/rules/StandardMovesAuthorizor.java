@@ -1,15 +1,18 @@
-package move;
+package rules;
 
 import board.Board;
 import board.Position;
+import move.Move;
 import piece.Color;
+import piece.Piece;
 
+import static board.Position.*;
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
+import static piece.PieceType.*;
 
-public class StandardChessRules implements IChessRules {
+public class StandardMovesAuthorizor {
 
-    @Override
     public boolean isMovePossible(Position startPosition, Position endPosition, Board board) {
         switch (board.getPieceAtPosition(startPosition).type) {
             case KNIGHT:
@@ -55,10 +58,23 @@ public class StandardChessRules implements IChessRules {
             return true;
         }
 
-        // can make diagonal move of one to take
-        if (abs(rowDistance(start, end)) == 1 && abs(columnDistance(start, end)) == 1
-                && endOccupiedByPieceOfDifferentColor(start, end, board)) {
-            return true;
+        if (abs(rowDistance(start, end)) == 1 && abs(columnDistance(start, end)) == 1) {
+            // can make diagonal move of one to take
+            if (endOccupiedByPieceOfDifferentColor(start, end, board)) {
+                return true;
+            }
+
+            // can en passant
+            Piece pawn = board.getPieceAtPosition(start);
+            if (end.row == pawn.color.opposite().pawnRow + pawn.color.opposite().directionOfTravel()
+                    && board.getPieceAtPosition(new Position(end.row - pawn.color.directionOfTravel(), end.column)) != null) {
+
+                Piece toBeTaken = board.getPieceAtPosition(new Position(end.row - pawn.color.directionOfTravel(), end.column));
+                if (toBeTaken.type == PAWN &&  !board.moves.isEmpty()
+                        && board.moves.get(board.moves.size() - 1).contains(toBeTaken)) {
+                    return true;
+                }
+            }
         }
 
         return false;
@@ -89,9 +105,27 @@ public class StandardChessRules implements IChessRules {
     }
 
     private boolean isKingMovePossible(Position start, Position end, Board board) {
-        return !endOccupiedByPieceOfSameColor(start, end, board)
-                && abs(rowDistance(start, end)) <= 1
-                && abs(columnDistance(start, end)) <= 1;
+        if (endOccupiedByPieceOfDifferentColor(start, end, board)) {
+            return false;
+        }
+
+        // can castle
+        Piece king = board.getPieceAtPosition(start);
+        if (end.column == KING_SIDE_KNIGHT_COLUMN && !king.hasMoved()
+                && board.getPieceAtPosition(new Position(king.color.pieceRow, KING_SIDE_ROOK_COLUMN)) != null
+                && !board.getPieceAtPosition(new Position(king.color.pieceRow, KING_SIDE_ROOK_COLUMN)).hasMoved()
+                && new Move(start, new Position(end.row, KING_SIDE_BISHOP_COLUMN), board).isLegal()) {
+            return true;
+        } else if (end.column == QUEEN_SIDE_BISHOP_COLUMN && !king.hasMoved()
+                && board.getPieceAtPosition(new Position(king.color.pieceRow, QUEEN_SIDE_ROOK_COLUMN)) != null
+                && !board.getPieceAtPosition(new Position(king.color.pieceRow, QUEEN_SIDE_ROOK_COLUMN)).hasMoved()
+                && board.getPieceAtPosition(new Position(king.color.pieceRow, QUEEN_SIDE_KNIGHT_COLUMN)) == null
+                && new Move(start, new Position(end.row, QUEEN_COLUMN), board).isLegal()) {
+            return true;
+        }
+
+        // can make normal move
+        return abs(rowDistance(start, end)) <= 1 && abs(columnDistance(start, end)) <= 1;
     }
 
     private int rowDistance(Position start, Position end) {

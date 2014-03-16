@@ -19,7 +19,7 @@ public class BoardSetter {
     }
 
     private static void setOriginalPieceAtPosition(Position position, Board board) {
-        Color color = getColor(position);
+        Color color = position.row == WHITE.pawnRow || position.row == WHITE.pieceRow ? WHITE : BLACK;
 
         if (position.row == WHITE.pawnRow || position.row == BLACK.pawnRow) {
             board.putPieceAtPosition(new Piece(color, PieceType.PAWN), position);
@@ -45,18 +45,5 @@ public class BoardSetter {
                     break;
             }
         }
-    }
-
-
-    private static Color getColor(Position position) {
-        Color color;
-
-        if (position.row == WHITE.pawnRow || position.row == WHITE.pieceRow) {
-            color = WHITE;
-        } else {
-            color = BLACK;
-        }
-
-        return color;
     }
 }

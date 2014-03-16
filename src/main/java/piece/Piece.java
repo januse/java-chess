@@ -1,11 +1,21 @@
 package piece;
 
+import move.Move;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Piece {
     public PieceType type;
     public Color color;
+    public List<Move> moves = new ArrayList<Move>();
     public Piece(Color color, PieceType type) {
         this.type = type;
         this.color = color;
+    }
+
+    public boolean hasMoved() {
+        return !moves.isEmpty();
     }
 
     @Override

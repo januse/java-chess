@@ -10,6 +10,7 @@ import java.util.List;
 
 public class Board {
     public static final int BOARD_SIZE = 8;
+    public final List<Move> moves = new ArrayList<Move>();
     private Piece[][] squares = new Piece[BOARD_SIZE][BOARD_SIZE];
 
     public boolean isCheckmated(Color color) {
@@ -36,6 +37,7 @@ public class Board {
         Move move = new Move(startPosition, endPosition, this);
         if (move.isLegal()) {
             move.makeMove();
+            moves.add(move);
             return true;
         }
         return false;

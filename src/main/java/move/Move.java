@@ -3,6 +3,8 @@ package move;
 import board.Board;
 import board.Position;
 import piece.Piece;
+import rules.IChessRules;
+import rules.StandardChessRules;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +29,11 @@ public class Move {
     }
 
     public void makeMove() {
-        populateManipulatedPieces();
+        piecesManipulatedInMove = chessRules.populatePieceManipulations(startPosition, endPosition, board);
         manipulatePieces();
+        for (PieceManipulation pieceManipulation : piecesManipulatedInMove) {
+            pieceManipulation.piece.moves.add(this);
+        }
     }
 
     public void undoMove() {
@@ -38,6 +43,9 @@ public class Move {
         invertManipulations();
         manipulatePieces();
         invertManipulations();
+        for (PieceManipulation pieceManipulation : piecesManipulatedInMove) {
+            pieceManipulation.piece.moves.remove(this);
+        }
     }
 
     public boolean isLegal() {
@@ -58,18 +66,20 @@ public class Move {
                 && chessRules.isMovePossible(startPosition, endPosition, board);
     }
 
+    public boolean contains(Piece piece) {
+        for (PieceManipulation pieceManipulation : piecesManipulatedInMove) {
+            if (pieceManipulation.piece == piece) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void invertManipulations() {
         for (PieceManipulation manipulation : piecesManipulatedInMove) {
             Position temp = manipulation.startPosition;
             manipulation.startPosition = endPosition;
             manipulation.endPosition = temp;
-        }
-    }
-
-    private void populateManipulatedPieces() {
-        piecesManipulatedInMove.add(new PieceManipulation(startPosition, endPosition, movingPiece));
-        if (board.getPieceAtPosition(endPosition) != null) {
-            piecesManipulatedInMove.add(new PieceManipulation(endPosition, null, board.getPieceAtPosition(endPosition)));
         }
     }
 

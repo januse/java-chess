@@ -17,4 +17,8 @@ public enum Color {
         }
         return WHITE;
     }
+
+    public int directionOfTravel() {
+        return pawnRow - pieceRow;
+    }
 }
