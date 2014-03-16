@@ -10,4 +10,11 @@ public enum Color {
         this.pieceRow = pieceRow;
         this.pawnRow = pawnRow;
     }
+
+    public Color opposite() {
+        if (this == WHITE) {
+            return BLACK;
+        }
+        return WHITE;
+    }
 }

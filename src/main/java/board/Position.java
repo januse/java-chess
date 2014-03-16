@@ -10,8 +10,6 @@ public class Position {
         this.column = column;
     }
 
-    public Position() {}
-
     public boolean isKnightStartPosition() {
         return isOnPieceRow() && (column == 1 || column == 6);
     }

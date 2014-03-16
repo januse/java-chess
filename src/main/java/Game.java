@@ -21,7 +21,7 @@ public class Game {
 
 
         Color currentColor = Color.WHITE;
-        while (!board.checkForCheckMate()) {
+        while (!board.isCheckmated(currentColor) && !board.isStalemated(currentColor)) {
             System.out.println(currentColor.name() + " make your move.  Enter start position as two integers between 0 and 7 inclusive with one space between them:");
             startPosition = bufferedReader.readLine();
 
@@ -46,13 +46,11 @@ public class Game {
 
 
             if (moveSuccessful) {
-                if (currentColor == Color.WHITE) {
-                    currentColor = Color.BLACK;
-                } else {
-                    currentColor = Color.WHITE;
-                }
+                currentColor = currentColor.opposite();
             }
         }
+
+        System.out.println("CHECKMATE");
     }
 
     private static Position getPositionFromArray(String[] positionArray) {
