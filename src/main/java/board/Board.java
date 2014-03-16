@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Board {
-    private static final int BOARD_SIZE = 8;
+    public static final int BOARD_SIZE = 8;
     private Piece[][] squares = new Piece[BOARD_SIZE][BOARD_SIZE];
 
     public boolean isCheckmated(Color color) {

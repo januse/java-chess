@@ -10,7 +10,25 @@ import static java.lang.Math.max;
 public class StandardChessRules implements IChessRules {
 
     @Override
-    public boolean isPawnMovePossible(Position start, Position end, Board board) {
+    public boolean isMovePossible(Position startPosition, Position endPosition, Board board) {
+        switch (board.getPieceAtPosition(startPosition).type) {
+            case KNIGHT:
+                return isKnightMovePossible(startPosition, endPosition, board);
+            case ROOK:
+                return isRookMovePossible(startPosition, endPosition, board);
+            case BISHOP:
+                return isBishopMovePossible(startPosition, endPosition, board);
+            case QUEEN:
+                return isQueenMovePossible(startPosition, endPosition, board);
+            case KING:
+                return isKingMovePossible(startPosition, endPosition, board);
+            case PAWN:
+                return isPawnMovePossible(startPosition, endPosition, board);
+        }
+        throw new RuntimeException("The type of piece you are trying to move shouldn't exist on the board");
+    }
+
+    private boolean isPawnMovePossible(Position start, Position end, Board board) {
         // must be linear or diagonal move
         if (!moveIsDiagonal(start, end) && !moveIsLinear(start, end)) {
             return false;
@@ -27,7 +45,7 @@ public class StandardChessRules implements IChessRules {
         }
 
         // can move two squares as first move
-        if (!pieceHasMoved(start, board) && moveIsLinear(start, end) && board.getPieceAtPosition(end) == null
+        if (pawnIsOnStartRow(start, board) && moveIsLinear(start, end) && board.getPieceAtPosition(end) == null
                 && abs(start.row - end.row) == 2 && !somethingIsInTheWay(start, start, board)) {
             return true;
         }
@@ -46,36 +64,31 @@ public class StandardChessRules implements IChessRules {
         return false;
     }
 
-    @Override
-    public boolean isRookMovePossible(Position start, Position end, Board board) {
+    private boolean isRookMovePossible(Position start, Position end, Board board) {
         return !endOccupiedByPieceOfSameColor(start, end, board)
                 && moveIsLinear(start, end)
                 && !somethingIsInTheWay(start, end, board);
     }
 
-    @Override
-    public boolean isBishopMovePossible(Position start, Position end, Board board) {
+    private boolean isBishopMovePossible(Position start, Position end, Board board) {
         return !endOccupiedByPieceOfSameColor(start, end, board)
                 && moveIsDiagonal(start, end)
                 && !somethingIsInTheWay(start, end, board);
     }
 
-    @Override
-    public boolean isQueenMovePossible(Position start, Position end, Board board) {
+    private boolean isQueenMovePossible(Position start, Position end, Board board) {
         return !endOccupiedByPieceOfSameColor(start, end, board)
                 && (moveIsDiagonal(start, end) || moveIsLinear(start, end))
                 && !somethingIsInTheWay(start, end, board);
     }
 
-    @Override
-    public boolean isKnightMovePossible(Position start, Position end, Board board) {
+    private boolean isKnightMovePossible(Position start, Position end, Board board) {
         return !endOccupiedByPieceOfSameColor(start, end, board)
                 && moveIsLShaped(start, end);
 
     }
 
-    @Override
-    public boolean isKingMovePossible(Position start, Position end, Board board) {
+    private boolean isKingMovePossible(Position start, Position end, Board board) {
         return !endOccupiedByPieceOfSameColor(start, end, board)
                 && abs(rowDistance(start, end)) <= 1
                 && abs(columnDistance(start, end)) <= 1;
@@ -84,7 +97,7 @@ public class StandardChessRules implements IChessRules {
     private int rowDistance(Position start, Position end) {
         return start.row - end.row;
     }
-    
+
     private int columnDistance(Position start, Position end) {
         return start.column - end.column;
     }
@@ -102,8 +115,8 @@ public class StandardChessRules implements IChessRules {
                 || (abs(rowDistance(start, end)) == 2 && abs(columnDistance(start, end)) == 1);
     }
 
-    private boolean pieceHasMoved(Position position, Board board) {
-        return board.getPieceAtPosition(position).hasMoved;
+    private boolean pawnIsOnStartRow(Position position, Board board) {
+        return position.row == board.getPieceAtPosition(position).color.pawnRow;
     }
 
     private boolean endOccupiedByPieceOfSameColor(Position start, Position end, Board board) {
@@ -115,7 +128,7 @@ public class StandardChessRules implements IChessRules {
         Color color = board.getPieceAtPosition(start).color;
         return board.getPieceAtPosition(end) != null && board.getPieceAtPosition(end).color != color;
     }
-    
+
     private boolean moveIsForward(Position start, Position end, Board board) {
         if (start.row - end.row < 0 && board.getPieceAtPosition(start).color == Color.WHITE) {
             return true;

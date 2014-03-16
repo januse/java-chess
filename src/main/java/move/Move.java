@@ -22,10 +22,6 @@ public class Move {
         this.movingPiece = board.getPieceAtPosition(startPosition);
     }
 
-    public Position getStartPosition() {
-        return startPosition;
-    }
-
     public Position getEndPosition() {
         return endPosition;
     }
@@ -35,18 +31,13 @@ public class Move {
         manipulatePieces();
     }
 
-    public void makeInvertedMove() {
+    public void undoMove() {
+        if (piecesManipulatedInMove.isEmpty()) {
+            throw new RuntimeException("You have to make a move before you can undo one");
+        }
         invertManipulations();
         manipulatePieces();
         invertManipulations();
-    }
-
-    private void invertManipulations() {
-        for (PieceManipulation manipulation : piecesManipulatedInMove) {
-            Position temp = manipulation.startPosition;
-            manipulation.startPosition = endPosition;
-            manipulation.endPosition = temp;
-        }
     }
 
     public boolean isLegal() {
@@ -56,9 +47,23 @@ public class Move {
 
         makeMove();
         boolean isLegal = !board.isInCheck(movingPiece.color);
-        makeInvertedMove();
+        undoMove();
 
         return isLegal;
+    }
+
+    public boolean isPossible() {
+        return movingPiece != null
+                && !startPosition.equals(endPosition)
+                && chessRules.isMovePossible(startPosition, endPosition, board);
+    }
+
+    private void invertManipulations() {
+        for (PieceManipulation manipulation : piecesManipulatedInMove) {
+            Position temp = manipulation.startPosition;
+            manipulation.startPosition = endPosition;
+            manipulation.endPosition = temp;
+        }
     }
 
     private void populateManipulatedPieces() {
@@ -92,30 +97,19 @@ public class Move {
         }
     }
 
-    public boolean isPossible() {
-        if (startPosition.equals(endPosition)) {
-            return false; // moving piece to its own position is never legal
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || !(object instanceof Move)) {
+            return false;
         }
+        Move otherMove = (Move) object;
+        return this.startPosition.equals(otherMove.startPosition)
+                && this.endPosition.equals(otherMove.endPosition)
+                && this.board == otherMove.board;
+    }
 
-        if (movingPiece == null) {
-            return false; // no piece at specified start position to move
-        }
-
-        switch (movingPiece.type) {
-            case KNIGHT:
-                return chessRules.isKnightMovePossible(startPosition, endPosition, board);
-            case ROOK:
-                return chessRules.isRookMovePossible(startPosition, endPosition, board);
-            case BISHOP:
-                return chessRules.isBishopMovePossible(startPosition, endPosition, board);
-            case QUEEN:
-                return chessRules.isQueenMovePossible(startPosition, endPosition, board);
-            case KING:
-                return chessRules.isKingMovePossible(startPosition, endPosition, board);
-            case PAWN:
-                return chessRules.isPawnMovePossible(startPosition, endPosition, board);
-        }
-
-        throw new RuntimeException("The piece is of an invalid type.  It's not really possible, but whatever");
+    @Override
+    public int hashCode() {
+        return (193 * ( 17 * (269 + startPosition.hashCode()) + endPosition.hashCode()) + board.hashCode());
     }
 }

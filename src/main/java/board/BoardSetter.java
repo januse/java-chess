@@ -4,55 +4,57 @@ import piece.Color;
 import piece.Piece;
 import piece.PieceType;
 
+import static piece.Color.*;
+
 public class BoardSetter {
 
     public static void setBoard(Board board) {
-        for (Position position : board.getAllPositionsOnBoard()) {
-            setOriginalPieceAtPosition(position, board);
+        int[] rowsWithPieces = new int[]{BLACK.pieceRow, WHITE.pieceRow, BLACK.pawnRow, WHITE.pawnRow};
+
+        for (int row : rowsWithPieces) {
+            for (int column = 0; column < Board.BOARD_SIZE; column++) {
+                setOriginalPieceAtPosition(new Position(row, column), board);
+            }
         }
     }
 
     private static void setOriginalPieceAtPosition(Position position, Board board) {
-        Color color = setColor(position);
+        Color color = getColor(position);
 
-        if (color == null) {
-            return;
-        }
-
-        if (position.isPawnStartPosition()) {
-            board.putPieceAtPosition(new Piece(PieceType.PAWN, color), position);
-        }
-
-        else if (position.isRookStartPosition()) {
-            board.putPieceAtPosition(new Piece(PieceType.ROOK, color), position);
-        }
-
-        else if (position.isKnightStartPosition()) {
-            board.putPieceAtPosition(new Piece(PieceType.KNIGHT, color), position);
-        }
-
-        else if (position.isBishopStartPosition()) {
-            board.putPieceAtPosition(new Piece(PieceType.BISHOP, color), position);
-        }
-
-        else if (position.isQueenStartPosition()) {
-            board.putPieceAtPosition(new Piece(PieceType.QUEEN, color), position);
-        }
-
-        else if (position.isKingStartPosition()) {
-            board.putPieceAtPosition(new Piece(PieceType.KING, color), position);
+        if (position.row == WHITE.pawnRow || position.row == BLACK.pawnRow) {
+            board.putPieceAtPosition(new Piece(color, PieceType.PAWN), position);
+        } else {
+            switch (position.column) {
+                case Position.QUEEN_SIDE_ROOK_COLUMN:
+                case Position.KING_SIDE_ROOK_COLUMN:
+                    board.putPieceAtPosition(new Piece(color, PieceType.ROOK), position);
+                    break;
+                case Position.QUEEN_SIDE_BISHOP_COLUMN:
+                case Position.KING_SIDE_BISHOP_COLUMN:
+                    board.putPieceAtPosition(new Piece(color, PieceType.BISHOP), position);
+                    break;
+                case Position.QUEEN_SIDE_KNIGHT_COLUMN:
+                case Position.KING_SIDE_KNIGHT_COLUMN:
+                    board.putPieceAtPosition(new Piece(color, PieceType.KNIGHT), position);
+                    break;
+                case Position.QUEEN_COLUMN:
+                    board.putPieceAtPosition(new Piece(color, PieceType.QUEEN), position);
+                    break;
+                case Position.KING_COLUMN:
+                    board.putPieceAtPosition(new Piece(color, PieceType.KING), position);
+                    break;
+            }
         }
     }
 
-    private static Color setColor(Position position) {
+
+    private static Color getColor(Position position) {
         Color color;
 
-        if (position.row == Color.WHITE.pawnRow || position.row == Color.WHITE.pieceRow) {
-            color = Color.WHITE;
-        } else if (position.row == Color.BLACK.pawnRow || position.row == Color.BLACK.pieceRow) {
-            color = Color.BLACK;
+        if (position.row == WHITE.pawnRow || position.row == WHITE.pieceRow) {
+            color = WHITE;
         } else {
-            return null;
+            color = BLACK;
         }
 
         return color;
