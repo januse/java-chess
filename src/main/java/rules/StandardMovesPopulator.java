@@ -2,14 +2,13 @@ package rules;
 
 import board.Board;
 import board.Position;
-import move.PieceManipulation;
+import game.Player;
+import move.Move;
+import move.PieceMove;
 import piece.Color;
 import piece.Piece;
 import piece.PieceType;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,77 +20,98 @@ import static piece.PieceType.*;
  * Moves should be validated before they are populated
  */
 public class StandardMovesPopulator {
-    public List<PieceManipulation> populateMove(Position startPosition, Position endPosition, Board board) {
-        if (moveIsCastle(startPosition, endPosition, board)) {
-            return populateCastleMove(startPosition, endPosition, board);
-        }
 
-        if (moveIsPromotion(startPosition, endPosition, board)) {
-            return populatePromotionMove(startPosition, endPosition, board);
-        }
+    private final Position start;
+    private final Position end;
+    private final Board board;
+    private final Player player;
+    private List<PieceMove> piecesMoved;
 
-        if (moveIsEnPassant(startPosition, endPosition, board)) {
-            return populateEnPassantMave(startPosition, endPosition, board);
-        }
-
-        return populateNormalMove(startPosition, endPosition, board);
+    public StandardMovesPopulator(Move move) {
+        this.start = move.getStartPosition();
+        this.end = move.getEndPosition();
+        this.board = move.getBoard();
+        this.player = move.getPlayer();
     }
 
-    private boolean moveIsCastle(Position startPosition, Position endPosition, Board board) {
-        return board.getPieceAtPosition(startPosition).type == KING
-                && abs(startPosition.column - endPosition.column) > 1;
-    }
+    public List<PieceMove> populateMove() {
+        piecesMoved = new ArrayList<>();
 
-    private boolean moveIsPromotion(Position startPosition, Position endPosition, Board board) {
-        return board.getPieceAtPosition(startPosition).type == PAWN
-                && endPosition.row == board.getPieceAtPosition(startPosition).color.opposite().pieceRow;
-    }
-
-    private boolean moveIsEnPassant(Position startPosition, Position endPosition, Board board) {
-        return board.getPieceAtPosition(startPosition).type == PAWN
-                && startPosition.column != endPosition.column
-                && board.getPieceAtPosition(endPosition) == null;
-    }
-
-    private List<PieceManipulation> populatePromotionMove(Position startPosition, Position endPosition, Board board) {
-        List<PieceManipulation> piecesManipulatedInMove = new ArrayList<PieceManipulation>();
-
-        Piece pawn = board.getPieceAtPosition(startPosition);
-
-        piecesManipulatedInMove.add(new PieceManipulation(startPosition, null, pawn));
-
-        if (board.getPieceAtPosition(endPosition) != null) {
-            piecesManipulatedInMove.add(new PieceManipulation(endPosition, null, board.getPieceAtPosition(endPosition)));
+        if (moveIsCastle()) {
+            populateCastleMove();
         }
 
+        else if (moveIsPromotion()) {
+            populatePromotionMove();
+        }
+
+        else if (moveIsEnPassant()) {
+            populateEnPassantMave();
+        }
+
+        else {
+            populateNormalMove();
+        }
+
+        return piecesMoved;
+    }
+
+    private boolean moveIsCastle() {
+        return board.getPieceAtPosition(start).type == KING
+                && abs(start.column - end.column) > 1;
+    }
+
+    private boolean moveIsPromotion() {
+        return board.getPieceAtPosition(start).type == PAWN
+                && end.row == board.getPieceAtPosition(start).color.opposite().pieceRow;
+    }
+
+    private boolean moveIsEnPassant() {
+        return board.getPieceAtPosition(start).type == PAWN
+                && start.column != end.column
+                && board.getPieceAtPosition(end) == null;
+    }
+
+    private void populatePromotionMove() {
+        piecesMoved.add(new PieceMove(start, null, board.getPieceAtPosition(start)));
+        addTakenPiece();
+        addPromotedPiece();
+    }
+
+    private void populateCastleMove() {
+        addPieceAtStartPosition();
+        addRookToCastle();
+    }
+
+    private void populateEnPassantMave() {
+        addPieceAtStartPosition();
+        addPawnTakenInEnPassant();
+    }
+
+    private void populateNormalMove() {
+        addPieceAtStartPosition();
+        addTakenPiece();
+    }
+
+    private void addPieceAtStartPosition() {
+        piecesMoved.add(new PieceMove(start, end, board.getPieceAtPosition(start)));
+    }
+
+    private void addTakenPiece() {
+        if (board.getPieceAtPosition(end) != null) {
+            piecesMoved.add(new PieceMove(end, null, board.getPieceAtPosition(end)));
+        }
+    }
+
+    private void addPromotedPiece() {
         PieceType newPieceType;
-        newPieceType = getPieceType();
-
-        piecesManipulatedInMove.add(new PieceManipulation(null, endPosition, new Piece(pawn.color, newPieceType)));
-
-        return piecesManipulatedInMove;
+        newPieceType = player.getTypeForPromotion(board);
+        piecesMoved.add(new PieceMove(null, end, new Piece(player.getColor(), newPieceType)));
     }
 
-    private PieceType getPieceType() {
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-            System.out.println("What piece type would you like to promote to?");
-            return PieceType.valueOf(bufferedReader.readLine());
-        } catch (Exception e) {
-            System.out.println("That's not a type you can promote to.  Please try again.");
-            return getPieceType();
-        }
-    }
-
-    private List<PieceManipulation> populateCastleMove(Position startPosition, Position endPosition, Board board) {
-        List<PieceManipulation> piecesManipulatedInMove = new ArrayList<PieceManipulation>();
-
-        Piece king = board.getPieceAtPosition(startPosition);
-
-        piecesManipulatedInMove.add(new PieceManipulation(startPosition, endPosition, king));
-
+    private void addRookToCastle() {
         int rookStartColumn, rookEndColumn;
-        if (endPosition.column == KING_SIDE_BISHOP_COLUMN) {
+        if (end.column == KING_SIDE_BISHOP_COLUMN) {
             rookStartColumn = KING_SIDE_ROOK_COLUMN;
             rookEndColumn = KING_SIDE_BISHOP_COLUMN;
         } else {
@@ -99,43 +119,20 @@ public class StandardMovesPopulator {
             rookEndColumn = QUEEN_COLUMN;
         }
 
-        piecesManipulatedInMove.add(new PieceManipulation(
-                new Position(king.color.pieceRow, rookStartColumn),
-                new Position(king.color.pieceRow, rookEndColumn),
-                board.getPieceAtPosition(new Position(king.color.pieceRow, rookStartColumn))));
-
-        return piecesManipulatedInMove;
+        piecesMoved.add(new PieceMove(
+                new Position(player.getColor().pieceRow, rookStartColumn),
+                new Position(player.getColor().pieceRow, rookEndColumn),
+                board.getPieceAtPosition(new Position(player.getColor().pieceRow, rookStartColumn))));
     }
 
-    private List<PieceManipulation> populateEnPassantMave(Position startPosition, Position endPosition, Board board) {
-        List<PieceManipulation> piecesManipulatedInMove = new ArrayList<PieceManipulation>();
+    private void addPawnTakenInEnPassant() {
+        int difference = player.getColor() == Color.WHITE? -1 : 1;
+        Position pawnBeingTakenPosition = new Position(end.row + difference, end.column);
 
-        Piece pawn = board.getPieceAtPosition(startPosition);
-
-        piecesManipulatedInMove.add(new PieceManipulation(startPosition, endPosition, pawn));
-
-        int difference = pawn.color == Color.WHITE? -1 : 1;
-        Position pawnBeingTakenPosition = new Position(endPosition.row + difference, endPosition.column);
-
-        piecesManipulatedInMove.add(
-                new PieceManipulation(
+        piecesMoved.add(
+                new PieceMove(
                         pawnBeingTakenPosition,
                         null,
                         board.getPieceAtPosition(pawnBeingTakenPosition)));
-
-        return piecesManipulatedInMove;
-    }
-
-    private List<PieceManipulation> populateNormalMove(Position startPosition, Position endPosition, Board board) {
-
-        List<PieceManipulation> piecesManipulatedInMove = new ArrayList<PieceManipulation>();
-
-        piecesManipulatedInMove.add(new PieceManipulation(startPosition, endPosition, board.getPieceAtPosition(startPosition)));
-
-        if (board.getPieceAtPosition(endPosition) != null) {
-            piecesManipulatedInMove.add(new PieceManipulation(endPosition, null, board.getPieceAtPosition(endPosition)));
-        }
-
-        return piecesManipulatedInMove;
     }
 }

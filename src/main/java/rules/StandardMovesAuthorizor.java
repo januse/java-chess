@@ -2,7 +2,9 @@ package rules;
 
 import board.Board;
 import board.Position;
+import game.Player;
 import move.Move;
+import move.MovePositions;
 import piece.Color;
 import piece.Piece;
 
@@ -12,49 +14,61 @@ import static piece.PieceType.*;
 
 public class StandardMovesAuthorizor {
 
-    public boolean isMovePossible(Position startPosition, Position endPosition, Board board) {
-        switch (board.getPieceAtPosition(startPosition).type) {
+    private final Position start;
+    private final Position end;
+    private final Board board;
+    private final Player player;
+
+    public StandardMovesAuthorizor(Move move) {
+        this.start = move.getStartPosition();
+        this.end = move.getEndPosition();
+        this.board = move.getBoard();
+        this.player = move.getPlayer();
+    }
+
+    public boolean isMovePossible() {
+        switch (board.getPieceAtPosition(start).type) {
             case KNIGHT:
-                return isKnightMovePossible(startPosition, endPosition, board);
+                return isKnightMovePossible();
             case ROOK:
-                return isRookMovePossible(startPosition, endPosition, board);
+                return isRookMovePossible();
             case BISHOP:
-                return isBishopMovePossible(startPosition, endPosition, board);
+                return isBishopMovePossible();
             case QUEEN:
-                return isQueenMovePossible(startPosition, endPosition, board);
+                return isQueenMovePossible();
             case KING:
-                return isKingMovePossible(startPosition, endPosition, board);
+                return isKingMovePossible();
             case PAWN:
-                return isPawnMovePossible(startPosition, endPosition, board);
+                return isPawnMovePossible();
         }
         throw new RuntimeException("The type of piece you are trying to move shouldn't exist on the board");
     }
 
-    private boolean isRookMovePossible(Position start, Position end, Board board) {
+    private boolean isRookMovePossible() {
         return !endOccupiedByPieceOfSameColor(start, end, board)
                 && moveIsLinear(start, end)
                 && !somethingIsInTheWay(start, end, board);
     }
 
-    private boolean isBishopMovePossible(Position start, Position end, Board board) {
+    private boolean isBishopMovePossible() {
         return !endOccupiedByPieceOfSameColor(start, end, board)
                 && moveIsDiagonal(start, end)
                 && !somethingIsInTheWay(start, end, board);
     }
 
-    private boolean isQueenMovePossible(Position start, Position end, Board board) {
+    private boolean isQueenMovePossible() {
         return !endOccupiedByPieceOfSameColor(start, end, board)
                 && (moveIsDiagonal(start, end) || moveIsLinear(start, end))
                 && !somethingIsInTheWay(start, end, board);
     }
 
-    private boolean isKnightMovePossible(Position start, Position end, Board board) {
+    private boolean isKnightMovePossible() {
         return !endOccupiedByPieceOfSameColor(start, end, board)
                 && moveIsLShaped(start, end);
 
     }
 
-    private boolean isKingMovePossible(Position start, Position end, Board board) {
+    private boolean isKingMovePossible() {
         if (endOccupiedByPieceOfSameColor(start, end, board)) {
             return false;
         }
@@ -64,13 +78,13 @@ public class StandardMovesAuthorizor {
         if (end.column == KING_SIDE_KNIGHT_COLUMN && !king.hasMoved()
                 && board.getPieceAtPosition(new Position(king.color.pieceRow, KING_SIDE_ROOK_COLUMN)) != null
                 && !board.getPieceAtPosition(new Position(king.color.pieceRow, KING_SIDE_ROOK_COLUMN)).hasMoved()
-                && new Move(start, new Position(end.row, KING_SIDE_BISHOP_COLUMN), board).isLegal()) {
+                && new Move(new MovePositions(start, new Position(end.row, KING_SIDE_BISHOP_COLUMN)), board, player).isLegal()) {
             return true;
         } else if (end.column == QUEEN_SIDE_BISHOP_COLUMN && !king.hasMoved()
                 && board.getPieceAtPosition(new Position(king.color.pieceRow, QUEEN_SIDE_ROOK_COLUMN)) != null
                 && !board.getPieceAtPosition(new Position(king.color.pieceRow, QUEEN_SIDE_ROOK_COLUMN)).hasMoved()
                 && board.getPieceAtPosition(new Position(king.color.pieceRow, QUEEN_SIDE_KNIGHT_COLUMN)) == null
-                && new Move(start, new Position(end.row, QUEEN_COLUMN), board).isLegal()) {
+                && new Move(new MovePositions(start, new Position(end.row, QUEEN_COLUMN)), board, player).isLegal()) {
             return true;
         }
 
@@ -78,7 +92,7 @@ public class StandardMovesAuthorizor {
         return abs(rowDistance(start, end)) <= 1 && abs(columnDistance(start, end)) <= 1;
     }
 
-    private boolean isPawnMovePossible(Position start, Position end, Board board) {
+    private boolean isPawnMovePossible() {
         // must be linear or diagonal move
         if (!moveIsDiagonal(start, end) && !moveIsLinear(start, end)) {
             return false;

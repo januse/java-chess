@@ -2,16 +2,24 @@ package rules;
 
 import board.Board;
 import board.Position;
-import move.PieceManipulation;
+import game.Player;
+import move.Move;
+import move.MovePositions;
+import move.PieceMove;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import piece.Color;
 import piece.Piece;
 
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import static piece.Color.*;
 import static piece.PieceType.*;
 
@@ -19,28 +27,37 @@ import static piece.PieceType.*;
 public class StandardMovesPopulatorTest {
 
     Board board;
-    StandardMovesPopulator chessRules = new StandardMovesPopulator();
+    StandardMovesPopulator chessRules;
     Piece whiteKing, blackQueen, whiteRook;
     Position start, end;
+    @Mock
+    private Player whitePlayer;
+    @Mock
+    private Player blackPlayer;
 
     @Before
     public void setUp() {
+        when(whitePlayer.getColor()).thenReturn(Color.WHITE);
+        when(blackPlayer.getColor()).thenReturn(Color.BLACK);
+
+        board = new Board(whitePlayer, blackPlayer);
         whiteKing = new Piece(WHITE, KING);
         blackQueen = new Piece(BLACK, QUEEN);
         whiteRook = new Piece(WHITE, ROOK);
         start = new Position(0, 4);
         end = new Position(0, 5);
-        board = new Board();
     }
 
     @Test
     public void populatorOnlyAddsMovingPieceForNormalMove() {
         board.putPieceAtPosition(whiteKing, start);
 
-        List<PieceManipulation> pieceManipulations = chessRules.populateMove(start, end, board);
+        chessRules = new StandardMovesPopulator(createMove(start, end));
 
-        assertTrue(pieceManipulations.size() == 1);
-        assertTrue(pieceManipulations.contains(new PieceManipulation(start, end, whiteKing)));
+        List<PieceMove> pieceMoves = chessRules.populateMove();
+
+        assertTrue(pieceMoves.size() == 1);
+        assertTrue(pieceMoves.contains(new PieceMove(start, end, whiteKing)));
     }
 
     @Test
@@ -48,11 +65,13 @@ public class StandardMovesPopulatorTest {
         board.putPieceAtPosition(whiteKing, start);
         board.putPieceAtPosition(blackQueen, end);
 
-        List<PieceManipulation> pieceManipulations = chessRules.populateMove(start, end, board);
+        chessRules = new StandardMovesPopulator(createMove(start, end));
 
-        assertTrue(pieceManipulations.size() == 2);
-        assertTrue(pieceManipulations.contains(new PieceManipulation(start, end, whiteKing)));
-        assertTrue(pieceManipulations.contains(new PieceManipulation(end, null, blackQueen)));
+        List<PieceMove> pieceMoves = chessRules.populateMove();
+
+        assertTrue(pieceMoves.size() == 2);
+        assertTrue(pieceMoves.contains(new PieceMove(start, end, whiteKing)));
+        assertTrue(pieceMoves.contains(new PieceMove(end, null, blackQueen)));
     }
 
     @Test
@@ -60,10 +79,28 @@ public class StandardMovesPopulatorTest {
         board.putPieceAtPosition(whiteKing, start);
         board.putPieceAtPosition(whiteRook, new Position(0, 0));
 
-        List<PieceManipulation> pieceManipulations = chessRules.populateMove(start, new Position(0, 2), board);
+        chessRules = new StandardMovesPopulator(createMove(start, new Position(0, 2)));
 
-        assertTrue(pieceManipulations.size() == 2);
-        assertTrue(pieceManipulations.contains(new PieceManipulation(start, new Position(0, 2), whiteKing)));
-        assertTrue(pieceManipulations.contains(new PieceManipulation(new Position(0, 0), new Position(0, 3), whiteRook)));
+        List<PieceMove> pieceMoves = chessRules.populateMove();
+
+        assertTrue(pieceMoves.size() == 2);
+        assertTrue(pieceMoves.contains(new PieceMove(start, new Position(0, 2), whiteKing)));
+        assertTrue(pieceMoves.contains(new PieceMove(new Position(0, 0), new Position(0, 3), whiteRook)));
+    }
+
+    @Test
+    public void populatorAsksPlayerInPromotion() {
+        board.putPieceAtPosition(new Piece(WHITE, PAWN), new Position(6, 0));
+
+        chessRules = new StandardMovesPopulator(createMove(new Position(6, 0), new Position(7, 0)));
+
+        chessRules.populateMove();
+
+        verify(whitePlayer).getTypeForPromotion(board);
+    }
+
+    private Move createMove(Position start, Position end) {
+        MovePositions movePositions = new MovePositions(start, end);
+        return new Move(movePositions, board, whitePlayer);
     }
 }

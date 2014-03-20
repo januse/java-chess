@@ -2,22 +2,27 @@ package rules;
 
 import board.Board;
 import board.Position;
-import move.PieceManipulation;
+import move.Move;
+import move.PieceMove;
 
-import java.io.IOException;
 import java.util.List;
 
 public class StandardChessRules implements IChessRules {
-    private StandardMovesAuthorizor movesAuthorizor = new StandardMovesAuthorizor();
-    private StandardMovesPopulator movesPopulator = new StandardMovesPopulator();
+    private final StandardMovesAuthorizor movesAuthorizor;
+    private final StandardMovesPopulator movesPopulator;
 
-    @Override
-    public boolean isMovePossible(Position startPosition, Position endPosition, Board board) {
-        return movesAuthorizor.isMovePossible(startPosition, endPosition, board);
+    public StandardChessRules(Move move) {
+        this.movesAuthorizor = new StandardMovesAuthorizor(move);
+        this.movesPopulator = new StandardMovesPopulator(move);
     }
 
     @Override
-    public List<PieceManipulation> populatePieceManipulations(Position startPosition, Position endPosition, Board board)  {
-        return movesPopulator.populateMove(startPosition, endPosition, board);
+    public boolean isMovePossible() {
+        return movesAuthorizor.isMovePossible();
+    }
+
+    @Override
+    public List<PieceMove> populatePiecesMoved()  {
+        return movesPopulator.populateMove();
     }
 }

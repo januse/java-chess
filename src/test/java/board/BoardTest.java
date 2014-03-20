@@ -1,9 +1,12 @@
 package board;
 
+import game.Player;
 import move.Move;
+import move.MovePositions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import piece.Color;
 import piece.Piece;
@@ -14,6 +17,7 @@ import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BoardTest {
@@ -21,10 +25,17 @@ public class BoardTest {
     Board board;
     Position kingStartPosition = new Position(0, 4);
     Piece whiteKing = new Piece(Color.WHITE, PieceType.KING);
+    @Mock
+    Player whitePlayer;
+    @Mock
+    Player blackPlayer;
 
     @Before
     public void setUp() {
-        board = new Board();
+        when(whitePlayer.getColor()).thenReturn(Color.WHITE);
+        when(blackPlayer.getColor()).thenReturn(Color.BLACK);
+
+        board = new Board(whitePlayer, blackPlayer);
         board.putPieceAtPosition(whiteKing, kingStartPosition);
     }
 
@@ -39,7 +50,7 @@ public class BoardTest {
     public void movePieceMovesPiece() {
         Position moveToPosition = new Position(1, 5);
 
-        board.movePiece(kingStartPosition, moveToPosition);
+        board.makeMove(createMove(kingStartPosition, moveToPosition));
 
         assertThat(board.getPieceAtPosition(moveToPosition), is(whiteKing));
         assertNull(board.getPieceAtPosition(kingStartPosition));
@@ -89,9 +100,15 @@ public class BoardTest {
 
         List<Move> legalMoves = board.getAllLegalMovesByColor(Color.WHITE);
 
-        assertThat(legalMoves, is((List) new ArrayList<Move>(){{
-            add(new Move(kingStartPosition, new Position(0, 3), board));
-            add(new Move(kingStartPosition, new Position(0, 5), board));}}
-        ));
+        List<Move> expectedLegalMoves = new ArrayList<Move>(){{
+                                                add(createMove(kingStartPosition, new Position(0, 3)));
+                                                add(createMove(kingStartPosition, new Position(0, 5)));}};
+
+        assertThat(legalMoves, is(expectedLegalMoves));
+    }
+
+    private Move createMove(Position start, Position end) {
+        MovePositions movePositions = new MovePositions(start, end);
+        return new Move(movePositions, board, whitePlayer);
     }
 }
