@@ -4,13 +4,26 @@ import board.Position;
 import piece.Piece;
 
 public class PieceMove {
-    public Position startPosition;
-    public Position endPosition;
+    public Position start;
+    public Position end;
     public Piece piece;
-    public PieceMove(Position startPosition, Position endPosition, Piece piece) {
-        this.startPosition = startPosition;
-        this.endPosition = endPosition;
+    public PieceMove(Position start, Position end, Piece piece) {
+        this.start = start;
+        this.end = end;
         this.piece = piece;
+    }
+
+    @Override
+    public String toString() {
+        if (start == null) {
+            return piece.color.name() + " " + piece.type.name() + " placed at " + end.toString();
+        }
+
+        if (end == null) {
+            return piece.color.name() + " " + piece.type.name() + " removed from " + start.toString();
+        }
+
+        return piece.color.name() + " " + piece.type.toString() + " from " + start.toString() + " to " + end.toString();
     }
 
     @Override
@@ -19,15 +32,15 @@ public class PieceMove {
             return false;
         }
         PieceMove otherPieceMove = (PieceMove) object;
-        return ( (this.startPosition == null && otherPieceMove.startPosition == null)
-                || this.startPosition.equals(otherPieceMove.startPosition))
-                && ((this.endPosition == null && otherPieceMove.endPosition == null)
-                || this.endPosition.equals(otherPieceMove.endPosition))
+        return ( (this.start == null && otherPieceMove.start == null)
+                || this.start.equals(otherPieceMove.start))
+                && ((this.end == null && otherPieceMove.end == null)
+                || this.end.equals(otherPieceMove.end))
                 && this.piece.equals(otherPieceMove.piece);
     }
 
     @Override
     public int hashCode() {
-        return (193 * ( 17 * (269 + startPosition.hashCode()) + endPosition.hashCode()) + piece.hashCode());
+        return (193 * ( 17 * (269 + start.hashCode()) + end.hashCode()) + piece.hashCode());
     }
 }

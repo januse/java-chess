@@ -8,7 +8,7 @@ import java.util.List;
 public class Piece {
     public PieceType type;
     public Color color;
-    public List<Move> moves = new ArrayList<Move>();
+    public List<Move> moves = new ArrayList<>();
     public Piece(Color color, PieceType type) {
         this.type = type;
         this.color = color;

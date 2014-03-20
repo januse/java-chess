@@ -45,31 +45,31 @@ public class StandardMovesAuthorizor {
     }
 
     private boolean isRookMovePossible() {
-        return !endOccupiedByPieceOfSameColor(start, end, board)
-                && moveIsLinear(start, end)
-                && !somethingIsInTheWay(start, end, board);
+        return !endOccupiedByPieceOfSameColor()
+                && moveIsLinear()
+                && !somethingIsInTheWay();
     }
 
     private boolean isBishopMovePossible() {
-        return !endOccupiedByPieceOfSameColor(start, end, board)
-                && moveIsDiagonal(start, end)
-                && !somethingIsInTheWay(start, end, board);
+        return !endOccupiedByPieceOfSameColor()
+                && moveIsDiagonal()
+                && !somethingIsInTheWay();
     }
 
     private boolean isQueenMovePossible() {
-        return !endOccupiedByPieceOfSameColor(start, end, board)
-                && (moveIsDiagonal(start, end) || moveIsLinear(start, end))
-                && !somethingIsInTheWay(start, end, board);
+        return !endOccupiedByPieceOfSameColor()
+                && (moveIsDiagonal() || moveIsLinear())
+                && !somethingIsInTheWay();
     }
 
     private boolean isKnightMovePossible() {
-        return !endOccupiedByPieceOfSameColor(start, end, board)
-                && moveIsLShaped(start, end);
+        return !endOccupiedByPieceOfSameColor()
+                && moveIsLShaped();
 
     }
 
     private boolean isKingMovePossible() {
-        if (endOccupiedByPieceOfSameColor(start, end, board)) {
+        if (endOccupiedByPieceOfSameColor()) {
             return false;
         }
 
@@ -89,39 +89,39 @@ public class StandardMovesAuthorizor {
         }
 
         // can make normal move
-        return abs(rowDistance(start, end)) <= 1 && abs(columnDistance(start, end)) <= 1;
+        return abs(rowDistance()) <= 1 && abs(columnDistance()) <= 1;
     }
 
     private boolean isPawnMovePossible() {
         // must be linear or diagonal move
-        if (!moveIsDiagonal(start, end) && !moveIsLinear(start, end)) {
+        if (!moveIsDiagonal() && !moveIsLinear()) {
             return false;
         }
 
         // can only move forward
-        if (!moveIsForward(start, end, board)) {
+        if (!moveIsForward()) {
             return false;
         }
 
         // cannot move onto another piece of same color
-        if (endOccupiedByPieceOfSameColor(start, end ,board)) {
+        if (endOccupiedByPieceOfSameColor()) {
             return false;
         }
 
         // can move two squares as first move
-        if (pawnIsOnStartRow(start, board) && moveIsLinear(start, end) && board.getPieceAtPosition(end) == null
-                && abs(start.row - end.row) == 2 && !somethingIsInTheWay(start, start, board)) {
+        if (pawnIsOnStartRow(start) && moveIsLinear() && !endOccupiedByPieceOfDifferentColor()
+                && abs(start.row - end.row) == 2 && !somethingIsInTheWay()) {
             return true;
         }
 
         // can move one step forward
-        if (abs(rowDistance(start, end)) == 1 && columnDistance(start, end) == 0) {
+        if (abs(rowDistance()) == 1 && columnDistance() == 0 && !endOccupiedByPieceOfDifferentColor()) {
             return true;
         }
 
-        if (abs(rowDistance(start, end)) == 1 && abs(columnDistance(start, end)) == 1) {
+        if (abs(rowDistance()) == 1 && abs(columnDistance()) == 1) {
             // can make diagonal move of one to take
-            if (endOccupiedByPieceOfDifferentColor(start, end, board)) {
+            if (endOccupiedByPieceOfDifferentColor()) {
                 return true;
             }
 
@@ -131,52 +131,53 @@ public class StandardMovesAuthorizor {
                     && board.getPieceAtPosition(new Position(end.row - pawn.color.directionOfTravel(), end.column)) != null) {
 
                 Piece toBeTaken = board.getPieceAtPosition(new Position(end.row - pawn.color.directionOfTravel(), end.column));
-                if (toBeTaken.type == PAWN &&  !board.moves.isEmpty()
+                if (toBeTaken.type == PAWN && !board.moves.isEmpty()
                         && board.moves.get(board.moves.size() - 1).contains(toBeTaken)) {
                     return true;
                 }
             }
+
         }
 
         return false;
     }
 
-    private int rowDistance(Position start, Position end) {
+    private int rowDistance() {
         return start.row - end.row;
     }
 
-    private int columnDistance(Position start, Position end) {
+    private int columnDistance() {
         return start.column - end.column;
     }
 
-    private boolean moveIsDiagonal(Position start, Position end) {
-        return abs(rowDistance(start, end)) == abs(columnDistance(start, end));
+    private boolean moveIsDiagonal() {
+        return abs(rowDistance()) == abs(columnDistance());
     }
 
-    private boolean moveIsLinear(Position start, Position end) {
-        return rowDistance(start, end) == 0 || columnDistance(start, end) == 0;
+    private boolean moveIsLinear() {
+        return rowDistance() == 0 || columnDistance() == 0;
     }
 
-    private boolean moveIsLShaped(Position start, Position end) {
-        return (abs(rowDistance(start, end)) == 1 && abs(columnDistance(start, end)) == 2)
-                || (abs(rowDistance(start, end)) == 2 && abs(columnDistance(start, end)) == 1);
+    private boolean moveIsLShaped() {
+        return (abs(rowDistance()) == 1 && abs(columnDistance()) == 2)
+                || (abs(rowDistance()) == 2 && abs(columnDistance()) == 1);
     }
 
-    private boolean pawnIsOnStartRow(Position position, Board board) {
+    private boolean pawnIsOnStartRow(Position position) {
         return position.row == board.getPieceAtPosition(position).color.pawnRow;
     }
 
-    private boolean endOccupiedByPieceOfSameColor(Position start, Position end, Board board) {
+    private boolean endOccupiedByPieceOfSameColor() {
         Color color = board.getPieceAtPosition(start).color;
         return board.getPieceAtPosition(end) != null && board.getPieceAtPosition(end).color == color;
     }
 
-    private boolean endOccupiedByPieceOfDifferentColor(Position start, Position end, Board board) {
+    private boolean endOccupiedByPieceOfDifferentColor() {
         Color color = board.getPieceAtPosition(start).color;
         return board.getPieceAtPosition(end) != null && board.getPieceAtPosition(end).color != color;
     }
 
-    private boolean moveIsForward(Position start, Position end, Board board) {
+    private boolean moveIsForward() {
         if (start.row - end.row < 0 && board.getPieceAtPosition(start).color == Color.WHITE) {
             return true;
         } else if (start.row - end.row > 0 && board.getPieceAtPosition(start).color == Color.BLACK) {
@@ -185,21 +186,21 @@ public class StandardMovesAuthorizor {
         return false;
     }
 
-    private boolean somethingIsInTheWay(Position start, Position end, Board board) {
+    private boolean somethingIsInTheWay() {
         Position position = new Position(start.row, start.column);
 
-        for (int i = 1; i < max(abs(rowDistance(start, end)), abs(columnDistance(start, end))); i++) {
+        for (int i = 1; i < max(abs(rowDistance()), abs(columnDistance())); i++) {
 
-            if (columnDistance(start, end) != 0) {
-                if (columnDistance(start, end) < 0) {
+            if (columnDistance() != 0) {
+                if (columnDistance() < 0) {
                     position.column = start.column + i;
                 } else {
                     position.column = start.column - i;
                 }
             }
 
-            if (rowDistance(start, end) != 0) {
-                if (rowDistance(start, end) < 0) {
+            if (rowDistance() != 0) {
+                if (rowDistance() < 0) {
                     position.row = start.row + i;
                 } else {
                     position.row = start.row - i;

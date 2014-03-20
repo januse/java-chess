@@ -18,6 +18,11 @@ public class Position {
     }
 
     @Override
+    public String toString() {
+        return String.format("%d %d", row, column);
+    }
+
+    @Override
     public boolean equals(Object object) {
         if (object == null || !(object instanceof Position)) {
             return false;

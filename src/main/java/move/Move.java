@@ -89,34 +89,43 @@ public class Move {
 
     private void invertPieceMoves() {
         for (PieceMove pieceMove : piecesMoved) {
-            Position temp = pieceMove.startPosition;
-            pieceMove.startPosition = pieceMove.endPosition;
-            pieceMove.endPosition = temp;
+            Position temp = pieceMove.start;
+            pieceMove.start = pieceMove.end;
+            pieceMove.end = temp;
         }
     }
 
     private void movePieces() {
         // take off pieces first
         for (PieceMove manipulation : piecesMoved) {
-            if (manipulation.endPosition == null) {
-                board.clearSquare(manipulation.startPosition);
+            if (manipulation.end == null) {
+                board.clearSquare(manipulation.start);
             }
         }
 
         // if all pieces stay on board, order does not matter
         for (PieceMove manipulation : piecesMoved) {
-            if (manipulation.startPosition != null && manipulation.endPosition != null) {
-                board.clearSquare(manipulation.startPosition);
-                board.putPieceAtPosition(manipulation.piece, manipulation.endPosition);
+            if (manipulation.start != null && manipulation.end != null) {
+                board.clearSquare(manipulation.start);
+                board.putPieceAtPosition(manipulation.piece, manipulation.end);
             }
         }
 
         // put new pieces on last
         for (PieceMove manipulation : piecesMoved) {
-            if (manipulation.startPosition == null) {
-                board.putPieceAtPosition(manipulation.piece, manipulation.endPosition);
+            if (manipulation.start == null) {
+                board.putPieceAtPosition(manipulation.piece, manipulation.end);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        String summary = "";
+        for (PieceMove pieceMove : piecesMoved) {
+            summary = summary + pieceMove.toString() + " ";
+        }
+        return summary;
     }
 
     @Override

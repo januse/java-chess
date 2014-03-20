@@ -111,7 +111,7 @@ public class StandardMovesPopulator {
 
     private void addRookToCastle() {
         int rookStartColumn, rookEndColumn;
-        if (end.column == KING_SIDE_BISHOP_COLUMN) {
+        if (end.column == KING_SIDE_KNIGHT_COLUMN) {
             rookStartColumn = KING_SIDE_ROOK_COLUMN;
             rookEndColumn = KING_SIDE_BISHOP_COLUMN;
         } else {
