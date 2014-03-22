@@ -18,7 +18,7 @@ public class Board {
     }
 
     public boolean isStalemated(Color color) {
-        return getAllLegalMovesByColor(color).isEmpty();
+        return !isInCheck(color) && getAllLegalMovesByColor(color).isEmpty();
     }
 
     public void clearSquare(Position position) {

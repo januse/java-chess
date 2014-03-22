@@ -7,8 +7,7 @@ import piece.Color;
 import piece.Piece;
 
 import static board.Position.*;
-import static java.lang.Math.abs;
-import static java.lang.Math.max;
+import static java.lang.Math.*;
 import static piece.PieceType.*;
 
 public class StandardMovesAuthorizor {
@@ -29,6 +28,54 @@ public class StandardMovesAuthorizor {
                 return isPawnMovePossible(startPosition, endPosition, board);
         }
         throw new RuntimeException("The type of piece you are trying to move shouldn't exist on the board");
+    }
+
+    private boolean isRookMovePossible(Position start, Position end, Board board) {
+        return !endOccupiedByPieceOfSameColor(start, end, board)
+                && moveIsLinear(start, end)
+                && !somethingIsInTheWay(start, end, board);
+    }
+
+    private boolean isBishopMovePossible(Position start, Position end, Board board) {
+        return !endOccupiedByPieceOfSameColor(start, end, board)
+                && moveIsDiagonal(start, end)
+                && !somethingIsInTheWay(start, end, board);
+    }
+
+    private boolean isQueenMovePossible(Position start, Position end, Board board) {
+        return !endOccupiedByPieceOfSameColor(start, end, board)
+                && (moveIsDiagonal(start, end) || moveIsLinear(start, end))
+                && !somethingIsInTheWay(start, end, board);
+    }
+
+    private boolean isKnightMovePossible(Position start, Position end, Board board) {
+        return !endOccupiedByPieceOfSameColor(start, end, board)
+                && moveIsLShaped(start, end);
+
+    }
+
+    private boolean isKingMovePossible(Position start, Position end, Board board) {
+        if (endOccupiedByPieceOfSameColor(start, end, board)) {
+            return false;
+        }
+
+        // can castle
+        Piece king = board.getPieceAtPosition(start);
+        if (end.column == KING_SIDE_KNIGHT_COLUMN && !king.hasMoved()
+                && board.getPieceAtPosition(new Position(king.color.pieceRow, KING_SIDE_ROOK_COLUMN)) != null
+                && !board.getPieceAtPosition(new Position(king.color.pieceRow, KING_SIDE_ROOK_COLUMN)).hasMoved()
+                && new Move(start, new Position(end.row, KING_SIDE_BISHOP_COLUMN), board).isLegal()) {
+            return true;
+        } else if (end.column == QUEEN_SIDE_BISHOP_COLUMN && !king.hasMoved()
+                && board.getPieceAtPosition(new Position(king.color.pieceRow, QUEEN_SIDE_ROOK_COLUMN)) != null
+                && !board.getPieceAtPosition(new Position(king.color.pieceRow, QUEEN_SIDE_ROOK_COLUMN)).hasMoved()
+                && board.getPieceAtPosition(new Position(king.color.pieceRow, QUEEN_SIDE_KNIGHT_COLUMN)) == null
+                && new Move(start, new Position(end.row, QUEEN_COLUMN), board).isLegal()) {
+            return true;
+        }
+
+        // can make normal move
+        return abs(rowDistance(start, end)) <= 1 && abs(columnDistance(start, end)) <= 1;
     }
 
     private boolean isPawnMovePossible(Position start, Position end, Board board) {
@@ -78,54 +125,6 @@ public class StandardMovesAuthorizor {
         }
 
         return false;
-    }
-
-    private boolean isRookMovePossible(Position start, Position end, Board board) {
-        return !endOccupiedByPieceOfSameColor(start, end, board)
-                && moveIsLinear(start, end)
-                && !somethingIsInTheWay(start, end, board);
-    }
-
-    private boolean isBishopMovePossible(Position start, Position end, Board board) {
-        return !endOccupiedByPieceOfSameColor(start, end, board)
-                && moveIsDiagonal(start, end)
-                && !somethingIsInTheWay(start, end, board);
-    }
-
-    private boolean isQueenMovePossible(Position start, Position end, Board board) {
-        return !endOccupiedByPieceOfSameColor(start, end, board)
-                && (moveIsDiagonal(start, end) || moveIsLinear(start, end))
-                && !somethingIsInTheWay(start, end, board);
-    }
-
-    private boolean isKnightMovePossible(Position start, Position end, Board board) {
-        return !endOccupiedByPieceOfSameColor(start, end, board)
-                && moveIsLShaped(start, end);
-
-    }
-
-    private boolean isKingMovePossible(Position start, Position end, Board board) {
-        if (endOccupiedByPieceOfDifferentColor(start, end, board)) {
-            return false;
-        }
-
-        // can castle
-        Piece king = board.getPieceAtPosition(start);
-        if (end.column == KING_SIDE_KNIGHT_COLUMN && !king.hasMoved()
-                && board.getPieceAtPosition(new Position(king.color.pieceRow, KING_SIDE_ROOK_COLUMN)) != null
-                && !board.getPieceAtPosition(new Position(king.color.pieceRow, KING_SIDE_ROOK_COLUMN)).hasMoved()
-                && new Move(start, new Position(end.row, KING_SIDE_BISHOP_COLUMN), board).isLegal()) {
-            return true;
-        } else if (end.column == QUEEN_SIDE_BISHOP_COLUMN && !king.hasMoved()
-                && board.getPieceAtPosition(new Position(king.color.pieceRow, QUEEN_SIDE_ROOK_COLUMN)) != null
-                && !board.getPieceAtPosition(new Position(king.color.pieceRow, QUEEN_SIDE_ROOK_COLUMN)).hasMoved()
-                && board.getPieceAtPosition(new Position(king.color.pieceRow, QUEEN_SIDE_KNIGHT_COLUMN)) == null
-                && new Move(start, new Position(end.row, QUEEN_COLUMN), board).isLegal()) {
-            return true;
-        }
-
-        // can make normal move
-        return abs(rowDistance(start, end)) <= 1 && abs(columnDistance(start, end)) <= 1;
     }
 
     private int rowDistance(Position start, Position end) {

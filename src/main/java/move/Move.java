@@ -38,7 +38,7 @@ public class Move {
 
     public void undoMove() {
         if (piecesManipulatedInMove.isEmpty()) {
-            throw new RuntimeException("You have to make a move before you can undo one");
+            throw new RuntimeException("You have to make a move before you can undo that move.");
         }
         invertManipulations();
         manipulatePieces();
@@ -78,7 +78,7 @@ public class Move {
     private void invertManipulations() {
         for (PieceManipulation manipulation : piecesManipulatedInMove) {
             Position temp = manipulation.startPosition;
-            manipulation.startPosition = endPosition;
+            manipulation.startPosition = manipulation.endPosition;
             manipulation.endPosition = temp;
         }
     }

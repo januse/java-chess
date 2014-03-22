@@ -65,17 +65,22 @@ public class StandardMovesPopulator {
         }
 
         PieceType newPieceType;
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-            System.out.println("What piece type would you like to promote to?");
-            newPieceType = PieceType.valueOf(bufferedReader.readLine());
-        } catch (IOException e) {
-            throw new RuntimeException("That's not a type you can promote to");
-        }
+        newPieceType = getPieceType();
 
         piecesManipulatedInMove.add(new PieceManipulation(null, endPosition, new Piece(pawn.color, newPieceType)));
 
         return piecesManipulatedInMove;
+    }
+
+    private PieceType getPieceType() {
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+            System.out.println("What piece type would you like to promote to?");
+            return PieceType.valueOf(bufferedReader.readLine());
+        } catch (Exception e) {
+            System.out.println("That's not a type you can promote to.  Please try again.");
+            return getPieceType();
+        }
     }
 
     private List<PieceManipulation> populateCastleMove(Position startPosition, Position endPosition, Board board) {
