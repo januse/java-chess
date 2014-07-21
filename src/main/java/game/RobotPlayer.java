@@ -19,8 +19,7 @@ public class RobotPlayer extends Player {
 
     @Override
     public Move makeNextMove(Board board) {
-        List<Move> legalMoves = board.getAllLegalMovesByColor(color);
-        return askKasparov(legalMoves);
+        return askKasparov(board);
     }
 
     @Override
@@ -28,7 +27,8 @@ public class RobotPlayer extends Player {
         return PieceType.QUEEN;
     }
 
-    private Move askKasparov(List<Move> moves) {
+    private Move askKasparov(Board board) {
+        List<Move> moves = board.getAllLegalMovesByColor(color);
         return moves.get(kasparov.nextInt(moves.size()));
     }
 }

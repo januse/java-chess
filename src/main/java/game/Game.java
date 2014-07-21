@@ -16,17 +16,25 @@ public class Game {
     private static final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
 
     public static void main(String[] args) throws IOException {
-        System.out.println("Welcome to chess!  We represent both rank and file as integers between 0 and 7 inclusive.\n" +
-                "We interpret the row number to come first and the column number to come second.\n" +
-                "For instance, entering a position of \"4 6\" will be interpreted as the square g5.\n");
+        System.out.println("Welcome to chess!");
 
         createPlayers();
         setBoard();
 
         Player currentPlayer = whitePlayer;
-        while (!board.isCheckmated(currentPlayer.color) && !board.isStalemated(currentPlayer.color)) {
+
+        while (!board.isCheckmated(currentPlayer.color) && !board.isStalemated(currentPlayer.color) && board.moves.size() < 1000) {
             makeMove(currentPlayer, board);
             currentPlayer = board.getPlayerByColor(currentPlayer.getColor().opposite());
+        }
+
+        if (board.isCheckmated(currentPlayer.color)) {
+            System.out.println(currentPlayer.getColor().opposite().name() + " checkmates " + currentPlayer.getColor().name());
+        }
+        else if (board.isStalemated(currentPlayer.color)) {
+            System.out.println("The game ends in a stalemate");
+        } else if (board.moves.size() >= 1000) {
+            System.out.println("This madness has gone on long enough");
         }
 
         System.out.println("Game over!");

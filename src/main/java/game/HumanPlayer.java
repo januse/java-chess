@@ -33,13 +33,22 @@ public class HumanPlayer extends Player {
 
     @Override
     public Move makeNextMove(Board board) {
-        Position start = getPosition(color.name() + " make your move.  " +
-                "Enter start position as two integers between 0 and 7 inclusive with one space between them:");
-        Position end = getPosition("Now enter the end position");
+        Position start = getPosition(color.name() + " make your move.  Enter the start position of your move:");
+        Position end = getPosition("Now enter the end position:");
         return new Move(new MovePositions(start, end), board, this);
     }
 
     private Position getPosition(String message) {
+        try {
+            System.out.println(message);
+            return new Position(bufferedReader.readLine());
+        } catch (Exception e) {
+            System.out.println("I didn't understand that.  Please try again.");
+            return getPosition(message);
+        }
+    }
+
+/*    private Position getPosition(String message) {
         try {
             System.out.println(message);
             return getPositionFromArray(bufferedReader.readLine().split(" "));
@@ -51,5 +60,5 @@ public class HumanPlayer extends Player {
 
     private static Position getPositionFromArray(String[] positionArray) {
         return new Position(Integer.valueOf(positionArray[0]), Integer.valueOf(positionArray[1]));
-    }
+    }*/
 }

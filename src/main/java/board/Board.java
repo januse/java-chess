@@ -112,7 +112,7 @@ public class Board {
         return positions;
     }
 
-    private Position getPositionOfKing(Color color) {
+    public Position getPositionOfKing(Color color) {
         for (Position position : getAllPositionsOnBoard()) {
             if (getPieceAtPosition(position) != null
                     && getPieceAtPosition(position).type == PieceType.KING
