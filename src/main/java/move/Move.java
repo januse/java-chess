@@ -87,6 +87,32 @@ public class Move {
         return false;
     }
 
+    public boolean isCheck() {
+        makeMove();
+        boolean isCheck = board.isInCheck(player.getColor().opposite());
+        undoMove();
+
+        return isCheck;
+    }
+
+    public boolean isCheckMate() {
+        makeMove();
+        boolean isCheckMate = board.isCheckmated(player.getColor().opposite());
+        undoMove();
+
+        return isCheckMate;
+    }
+
+    public boolean isATake() {
+        boolean isATake = false;
+        for (PieceMove pieceMove : piecesMoved) {
+            if (pieceMove.piece.color != player.getColor()) {
+                isATake = true;
+            }
+        }
+        return isATake;
+    }
+
     private void invertPieceMoves() {
         for (PieceMove pieceMove : piecesMoved) {
             Position temp = pieceMove.start;

@@ -29,6 +29,20 @@ public class RobotPlayer extends Player {
 
     private Move askKasparov(Board board) {
         List<Move> moves = board.getAllLegalMovesByColor(color);
-        return moves.get(kasparov.nextInt(moves.size()));
+        Move moveToMake = moves.get(kasparov.nextInt(moves.size()));
+        for (Move move : moves) {
+            if (move.isCheckMate()) {
+                moveToMake = move;
+            }
+
+            if (move.isCheck() && !moveToMake.isCheckMate()) {
+                moveToMake = move;
+            }
+
+            if (move.isATake() && !moveToMake.isCheckMate() && !moveToMake.isCheck()) {
+                moveToMake = move;
+            }
+        }
+        return moveToMake;
     }
 }
