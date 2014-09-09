@@ -1,6 +1,10 @@
 java-chess
 ==========
-This is a command-line chess game.  It is playable as is, but there is work left to be done to simplify the interface for bots into the board.
+This is a command-line chess game.  The game is fully playable.  
+
+Next Steps:
+*The interface into the board should be simplified and secured.
+*The state of the board should be displayed after each move.
 
 ###Play Command Line Chess
 
@@ -39,17 +43,17 @@ This will return a list of legal moves for the color passed as an argument, give
 
 This will attempt alter the state of the board by making the move passed as an argument.  If the move is not legal, the state of the board will be unchanged and the method will return false.  Otherwise, the state of the board will be changed and the method will return true.
 
-You can use this move, in combination with the undoMove method on Move objects (documented below) to explore game trees and look ahead into the game.
+You can use this method, in combination with the undoMove method on Move objects (documented below) to explore game trees and look ahead into the game.
 
 ####The Move Class
 
 A move object represents one move in the game. You can get the moves that have been played on any given board with 
 
-```board.moves;```
+`board.moves;`
 
 and the moves that are possible on a board for a given color with
 
-```board.getAllLegalMovesByColor(color)```.
+`board.getAllLegalMovesByColor(color);`
 
 **void undoMove()**
 
