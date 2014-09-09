@@ -47,7 +47,7 @@ You can use this method, in combination with the undoMove method on Move objects
 
 ####The Move Class
 
-A move object represents one move in the game. You can get the moves that have been played on any given board with 
+A Move object represents one move in the game. You can get the moves that have been played on any given board with 
 
 `board.moves;`
 
