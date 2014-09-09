@@ -59,9 +59,6 @@ and the moves that are possible on a board for a given color with
 
 This will change the state of the board on which the move was made to undo that move.  This should only be called on the most recent move played on any given board - otherwise you're likely to put the board into an inconsistent state.
 
-**There are also a number of methods that will give you information about the move.**  
-Your bot can use these to help it decide which move to make.
-
 **boolean isLegal()**
 
 Returns true if move is legal, false otherwise.
