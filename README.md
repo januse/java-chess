@@ -6,7 +6,7 @@ Next Steps:
 * The interface into the board should be simplified and secured.
 * The state of the board should be displayed after each move.
 
-###Play Command Line Chess
+###Getting Started: Play Chess on the Command Line
 
 Make sure you have the java and the java compiler installed.  The easiest way to do this may be to [install the jdk](http://docs.oracle.com/javase/7/docs/webnotes/install/).
 
