@@ -3,8 +3,8 @@ java-chess
 This is a command-line chess game.  The game is fully playable.  
 
 Next Steps:
-*The interface into the board should be simplified and secured.
-*The state of the board should be displayed after each move.
+* The interface into the board should be simplified and secured.
+* The state of the board should be displayed after each move.
 
 ###Play Command Line Chess
 
