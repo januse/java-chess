@@ -21,7 +21,7 @@ javac game/Game.java
 
 ####Run
 
-You can now run the game from the same directory with: 
+You can now run the game with: 
 
 ```java game.Game```
 
