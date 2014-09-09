@@ -12,7 +12,7 @@ Make sure you have the java and the java compiler installed.  The easiest way to
 
 ####Compile
 
-The main method is in the game/Game.java source file.  Compile this file from the src directory.  From the base directory simply run:
+To compile the source, simply run the following two commands from the base directory:
 
 ```
 cd src/main/java
