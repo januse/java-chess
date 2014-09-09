@@ -21,6 +21,12 @@ public class Game {
         createPlayers();
         setBoard();
 
+        enterGameLoop();
+
+        System.out.println("Game over!");
+    }
+
+    private static void enterGameLoop() {
         Player currentPlayer = whitePlayer;
 
         while (!board.isCheckmated(currentPlayer.color) && !board.isStalemated(currentPlayer.color) && board.moves.size() < 1000) {
@@ -36,8 +42,6 @@ public class Game {
         } else if (board.moves.size() >= 1000) {
             System.out.println("This madness has gone on long enough");
         }
-
-        System.out.println("Game over!");
     }
 
     private static boolean makeMove(Player player, Board board) {

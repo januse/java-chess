@@ -1,7 +1,5 @@
 package rules;
 
-import board.Board;
-import board.Position;
 import move.Move;
 import move.PieceMove;
 

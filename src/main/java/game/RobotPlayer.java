@@ -8,7 +8,6 @@ import piece.PieceType;
 import java.util.List;
 import java.util.Random;
 
-// TODO: improve robot player
 public class RobotPlayer extends Player {
 
     private Random kasparov = new Random();

@@ -47,18 +47,4 @@ public class HumanPlayer extends Player {
             return getPosition(message);
         }
     }
-
-/*    private Position getPosition(String message) {
-        try {
-            System.out.println(message);
-            return getPositionFromArray(bufferedReader.readLine().split(" "));
-        } catch (NumberFormatException | ArrayIndexOutOfBoundsException | IOException e) {
-            System.out.println("I didn't understand that.  Please try again.");
-            return getPosition(message);
-        }
-    }
-
-    private static Position getPositionFromArray(String[] positionArray) {
-        return new Position(Integer.valueOf(positionArray[0]), Integer.valueOf(positionArray[1]));
-    }*/
 }
